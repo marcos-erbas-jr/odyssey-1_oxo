@@ -9,7 +9,9 @@ list_circle = []
 list_positions = []
 list_positionsX = []
 list_positionsO = []
+coordenadas = [(45.0, 45.0),(145.0, 45.0),(245.0, 45.0),(45.0, 145.0),(145.0, 145.0),(245.0, 145.0),(45.0, 245.0),(145.0, 245.0),(245.0, 245.0)]
 player = "cross"
+play = 0
 
 dt = 0
 x = (screen.get_width()/2)-10
@@ -30,30 +32,61 @@ def backgroung():
     pygame.draw.line(screen, "white", (200, 10), (200, 300), 5)
     
 
-def crossdraw(posx, posy):
+def crossdraw(posx, posy, list, list_positions):
     if (posx, posy) in list_positions:
         return
     else:
+        lista = []
         list_positions.append((posx, posy))
-        list_positionsX.append((posx, posy))
+        for coordenada in coordenadas:
+            if coordenada == (posx, posy):
+                lista = list.copy()
+                list.append(coordenadas.index(coordenada))
+                lista.sort()
+                list = lista.copy()
+                lista.clear()
+
         posy += 5
         posx += 5
         list_cross.append((posx-20, posy-20, posx+20, posy+20, posx+20,
                             posy-20, posx-20, posy+20))
-        #print("coordenadas cross:",list_positionsX)
+        print("coordenadas cross:",list_positionsX)
 
-def circledraw(posx, posy):
+def circledraw(posx, posy, list, list_positions):
     if (posx, posy) in list_positions:
         #print('circle não feito')
         return
     else:
+        lista = []
         list_positions.append((posx, posy))
-        list_positionsO.append((posx, posy))
+        for coordenada in coordenadas:
+            if coordenada == (posx, posy):
+                lista = list.copy()
+                list.append(coordenadas.index(coordenada))
+                lista.sort()
+                list = lista.copy()
+                lista.clear()
         posy += 5
         posx += 5
         list_circle.append((posx, posy))
-        #print("coordenadas circulo:", list_positionsO)
-
+        print("coordenadas circulo:", list_positionsO)
+def winner(player):
+    if player == "cross":
+        lista = list_positionsX.copy()
+    else:
+        lista = list_positionsO.copy()
+    if (0 in lista and 1 in lista and 2 in lista
+            or 0 in lista and 3 in lista and 6 in lista
+            or 0 in lista and 4 in lista and 8 in lista
+            or 3 in lista and 4 in lista and 5 in lista
+            or 1 in lista and 4 in lista and 7 in lista
+            or 2 in lista and 4 in lista and 6 in lista
+            or 6 in lista and 7 in lista and 8 in lista
+            or 2 in lista and 5 in lista and 8 in lista):
+        print(f"{player.capitalize()} WIN!!")
+        return 1
+    else:
+        lista.clear()
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -86,12 +119,16 @@ while running:
                 x += 100
         if keys[pygame.K_SPACE]:
             if player == "cross":
-                crossdraw(x, y)
+                crossdraw(x, y, list_positionsX,list_positions)
+                play = winner(player)
                 player = "circle"
                 break
 
             else:
-                circledraw(posx=x, posy=y)
+                circledraw(posx=x, posy=y, list=list_positionsO,
+                           list_positions=list_positions)
+                winner(player)
+                play = winner(player)
                 player = "cross"
                 break
         if len(list_cross) > 0:
@@ -103,6 +140,9 @@ while running:
         if len(list_circle) > 0:
             for circle in list_circle:
                 pygame.draw.circle(screen, (255, 255, 255), (circle[0],circle[1]),30, 5)
+
+        if play == 1:
+           running = False
 
         pygame.display.flip()
         clock.tick(60)
