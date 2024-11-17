@@ -3,6 +3,9 @@ import pygame
 pygame.init()
 screen = pygame.display.set_mode((310,310))
 clock = pygame.time.Clock()
+pygame.display.set_caption('OXO')
+icon = pygame.image.load('oxoicon.ico')
+pygame.display.set_icon(icon)
 running = True
 list_cross = []
 list_circle = []
